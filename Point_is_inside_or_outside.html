@@ -1,0 +1,273 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Get the coordinates on canvas</title>
+    <meta charset="utf-8" />
+    <style type="text/css">
+	  body{margin: 0;}
+      #canvas{background-color: #1709C1;}
+    </style>
+    <script type="text/javascript">
+     	 document.addEventListener("DOMContentLoaded", init, false);
+
+      function init()
+      {
+	
+        var canvas = document.getElementById("canvas");
+        canvas.addEventListener("mousedown", getPosition, false);
+
+      }
+var num=0,i=0,numfinalpoint,last=0,first=0,tru;
+var arr,left,right,polyvert=0;
+var arx=[1000],ary=[1000],arpx=[1000],arpy=[1000];
+var maxi =Number.MAX_VALUE;
+//--------------------------------------------------------------------------------------------------------------------
+function getPosition(event)
+{ 
+if (first==0)
+{
+	var x = new Number();
+        var y = new Number();
+        var canvas = document.getElementById("canvas");
+	var context=canvas.getContext("2d");
+
+        if (event.x != undefined && event.y != undefined)
+        {
+          x = event.x;
+          y = event.y;
+        }
+        else // Firefox method to get the position
+        {
+          x = event.clientX + document.body.scrollLeft +
+              document.documentElement.scrollLeft;
+          y = event.clientY + document.body.scrollTop +
+              document.documentElement.scrollTop;
+        }
+
+        x -= canvas.offsetLeft;
+        y -= canvas.offsetTop;
+x=x+1;
+y=y+1;
+
+//document.getElementById("coord").innerHTML =document.getElementById("coord").innerHTML+ " M"+num+"("+x+","+y+"), ";
+num+=1;
+
+arx[i]=x;
+ary[i]=y;
+i++;
+
+	if (num>1)
+	{
+		var check1=Math.sqrt( ((x-arx[0])*(x-arx[0])) + ((y-ary[0])*(y-ary[0])) );
+		if ( Math.sqrt( ((x-arx[0])*(x-arx[0])) + ((y-ary[0])*(y-ary[0])) ) < 11)
+		{
+		arx[i-1]=arx[0];
+		ary[i-1]=ary[0];
+		last=1;
+		first=1;
+		num-=1;
+	}
+    
+var canvas = document.getElementById("canvas");
+var context=canvas.getContext("2d"); 
+context.beginPath();
+context.strokeStyle = 'black';
+context.moveTo(arx[i-2],ary[i-2]);
+context.lineTo(arx[i-1],ary[i-1]);
+context.stroke();
+x.disabled = true;
+}
+
+
+if (last==0)
+{
+//circle
+
+	context.fillStyle = 'green';
+	context.beginPath();
+	context.arc(x, y, 10, 0, 2 * Math.PI, false);
+  	context.fill();
+	context.lineWidth = 1;
+	context.strokeStyle = '#003300';
+	context.stroke();
+	  
+	//number
+	var str = num;
+	context.fillStyle= 'white';
+	context.font = "30px Verdana";
+	context.fillText(str,x,y);
+}
+polyvert++;
+}
+
+else
+{
+//document.getElementById("coord").innerHTML =document.getElementById("coord").innerHTML+ " check0"+check1+"("+arx[i]+","+ary[i]+"), ";
+pointcheck();
+}
+numfinalpoint= num-1;
+
+      //alert('x: ' + x + '  y: ' + y);
+}//end function getPosition(event)
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+function pointcheck()
+{
+	var i =0;
+	var x = new Number();
+        var y = new Number();
+        var canvas = document.getElementById("canvas");
+	var context=canvas.getContext("2d");
+
+        if (event.x != undefined && event.y != undefined)
+        {
+          x = event.x;
+          y = event.y;
+        }
+        else
+        {
+          x = event.clientX + document.body.scrollLeft +
+              document.documentElement.scrollLeft;
+          y = event.clientY + document.body.scrollTop +
+              document.documentElement.scrollTop;
+        }
+
+        x -= canvas.offsetLeft;
+        y -= canvas.offsetTop;
+	x=x+1;
+	y=y+1;
+	num+=1;
+	arpx[i]=x;
+	arpy[i]=y;
+//circle
+	context.fillStyle = 'green';
+	context.beginPath();
+	context.arc(x, y, 10, 0, 2 * Math.PI, false);
+    
+      context.fill();
+      context.lineWidth = 1;
+      context.strokeStyle = '#003300';
+      context.stroke();
+
+
+//number
+	var str = num;
+	context.fillStyle= 'white';
+	context.font = "30px Verdana";
+	context.fillText(str,x,y);
+//document.getElementById("coord").innerHTML =document.getElementById("coord").innerHTML+ " check0("+arpx[i]+","+arpy[i]+"), ";
+//document.getElementById("coord").innerHTML =document.getElementById("coord").innerHTML+ " before start1";
+starts1(polyvert-1);
+i++;
+
+}//pointcheck function end
+
+//----------------------------------------------------------------------------------------------------------------------------------
+
+function starts1(pol)
+{
+var bol=0;
+i=0;
+do{
+j= (i+1)%pol;
+var check = doIntersect(arx[i],ary[i],arx[j],ary[j],arpx[0],arpy[0],640,arpy[0]);
+	if (check!=0)
+		bol++;
+//document.getElementById("coord").innerHTML =document.getElementById("coord").innerHTML+ " boll("+bol+")";
+i = j;
+
+}while(i!=0);
+
+//document.getElementById("coord").innerHTML ="iNTERSECT "+bol+" times. Point is outside.";
+
+if(bol%2==0)
+{
+	document.getElementById("coord").innerHTML ="INTERSECT "+bol+" times. Point is outside.";
+}else
+{
+	document.getElementById("coord").innerHTML ="INTERSECT "+bol+" times. Point is inside.";
+}
+//document.getElementById("coord").innerHTML =document.getElementById("coord").innerHTML+ " ooooxxooo("+arx[i-1]+","+ary[i-1]+"), ";
+}
+//-------------------------------------------------------------------------------------------------
+
+function doIntersect(p1x,p1y,q1x,q1y,p2x,p2y,q2x,q2y)//p1-point1 on poly,,p2-point2 on poly,,q1-point1 on point check,,q2-point2 on point check
+{
+    
+	var o1 = orientation(p1x,p1y, q1x,q1y, p2x,p2y);
+	var o2 = orientation(p1x,p1y, q1x,q1y, q2x,q2y);
+	var o3 = orientation(p2x,p2y, q2x,q2y, p1x,p1y);
+	var o4 = orientation(p2x,p2y,q2x,q2y,q1x,q1y);
+	//document.getElementById("coord").innerHTML =document.getElementById("coord").innerHTML+ " ooooooo("+o1+","+o2+"), ";
+	// General case
+	if (o1 != o2 && o3 != o4)
+	return true;
+	// Special Cases
+	// p1, q1 and p2 are colinear and p2 lies on segment p1q1
+	if (o1 == 0 && onSegment(p1x,p1y, p2x,p2y, q1x,q1y)) return true;
+	// p1, q1 and p2 are colinear and q2 lies on segment p1q1
+	if (o2 == 0 && onSegment(p1x,p1y, q2x,q2y, q1x,q1y)) return true;
+	// p2, q2 and p1 are colinear and p1 lies on segment p2q2
+	if (o3 == 0 && onSegment(p2x,p2y, p1x,p1y, q2x,q2y)) return true;
+	// p2, q2 and q1 are colinear and q1 lies on segment p2q2
+	if (o4 == 0 && onSegment(p2x,p2y, q1x,q1y, q2x,q2y)) return true;
+	return false; // Doesn't fall in any of the above cases
+
+}
+//-------------------------------------------------------------------------------------------------------------------------
+
+// Given three colinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+function onSegment(px,py, qx,qy, rx,ry)
+{
+	if (qx <= max(px, rx) && qx >= min(px, rx) && qy <= max(py, ry) && qy >= min(py, ry))
+	{return true;}
+ 
+	return false;
+}
+//--------------------------------------------------------------------------------------------------------------------------- 
+// To find orientation of ordered triplet (p, q, r).
+// The function returns following values
+// 0 --> p, q and r are colinear
+// 1 --> Clockwise
+// 2 --> Counterclockwise
+function orientation(px,py,qx,qy,rx,ry)
+{
+	var val = (qy - py) * (rx - qx) - (qx - px) * (ry - qy);
+	if (val == 0) return 0;  // col
+	if(val > 0) return 1;
+	else return 2; // clock or counterclock wise
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+</script>
+</head>
+
+ 
+ <body background="title.jpg"> 
+
+<center>
+<div>
+<h1>Please Press in blue portion for the coordinate</h1> 
+ </div>
+
+
+<div>
+<canvas position = "fixed" id="canvas" width="640" height="360"></canvas>
+</div>
+
+<div>
+<p  id="coord" ><b><h1>coordinates</h1></b></p>
+</div>
+
+
+<div>
+<img src="photocomplete.jpg" alt="ghaph View" style="width:304px;height:228px;">
+</div>
+</center> 
+</body>
+</html>
